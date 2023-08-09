@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 
 const data = ref([
   {
@@ -246,8 +246,24 @@ const data = ref([
     beingCorrected: false,
   },
 ]);
+const cardContainer = ref(null);
 const card = ref(null);
+const cardX = ref(0);
+const cardY = ref(0);
+const cardWidth = ref(0);
+const cardHeight = ref(0);
+const cardPosition = reactive({
+  leftTop: { x: undefined, y: undefined },
+  leftBottom: { x: undefined, y: undefined },
+  rightTop: { x: undefined, y: undefined },
+  rightBottom: { x: undefined, y: undefined },
+});
 const draggingStyle = ref({});
+const mousePos = reactive({ x: undefined, y: undefined });
+const isMoveInTimeline = ref(false);
+
+const timelineContainer = ref(null);
+const timeline = ref(null);
 
 const currentStep = ref(0);
 
@@ -266,16 +282,47 @@ const dragstart_handler = (event) => {
       left: pageX - card.value.offsetWidth / 2 + "px",
       top: pageY - card.value.offsetHeight / 2 + "px",
     };
+
+    cardWidth.value = card.value.offsetWidth;
+    cardHeight.value = card.value.offsetHeight;
+    cardX.value = pageX - card.value.offsetWidth / 2 + "px";
+    cardY.value = pageY - card.value.offsetHeight / 2 + "px";
+    cardPosition.leftTop = {
+      x: pageX - card.value.offsetWidth / 2,
+      y: pageY - card.value.offsetHeight / 2,
+    };
+    cardPosition.leftBottom = {
+      x: pageX - card.value.offsetWidth / 2,
+      y: pageY + card.value.offsetHeight / 2,
+    };
+    cardPosition.rightTop = {
+      x: pageX + card.value.offsetWidth / 2,
+      y: pageY - card.value.offsetHeight / 2,
+    };
+    cardPosition.rightBottom = {
+      x: pageX + card.value.offsetWidth / 2,
+      y: pageY + card.value.offsetHeight / 2,
+    };
   };
 
   moveAt(event.pageX, event.pageY);
 
   const dragmove_handler = (ev) => {
     moveAt(ev.pageX, ev.pageY);
+    handleTimelineObserver();
   };
   document.addEventListener("mousemove", dragmove_handler);
   card.value.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", dragmove_handler);
+    cardContainer.value.append(card.value);
+    currentDraggingStyle.value = {
+      position: "static",
+      zIndex: 0,
+      left: "auto",
+      top: "auto",
+      transition: "all 2s ease-in-out",
+    };
+    isMoveInTimeline.value = false;
     card.value.removeEventListener("mouseup", () => {});
   });
 };
@@ -285,15 +332,29 @@ const currentDraggingStyle = computed({
     return draggingStyle.value;
   },
   set: (val) => {
-    console.log(val);
     draggingStyle.value = val;
   },
 });
+
+const handleTimelineObserver = (entries) => {
+  const rect = timeline.value.getBoundingClientRect();
+  const rectTop = rect.top + window.scrollY;
+  if (cardPosition.rightBottom.y > rectTop) {
+    isMoveInTimeline.value = true;
+  } else {
+    isMoveInTimeline.value = false;
+  }
+};
 
 onMounted(() => {
   card.value.addEventListener("mousedown", dragstart_handler);
   card.value.addEventListener("dragstart", () => {
     return false;
+  });
+
+  window.addEventListener("mousemove", (event) => {
+    mousePos.x = event.clientX;
+    mousePos.y = event.clientY;
   });
 });
 
@@ -305,6 +366,20 @@ const count = ref(0);
 </script>
 
 <template>
+  <div class="fixed right-0 top-0">
+    滑鼠位置 X: {{ mousePos.x }}, Y:{{ mousePos.y }}
+  </div>
+  <div class="fixed right-0 top-10">
+    卡片四個角位置<br />
+    leftTop X: {{ cardPosition.leftTop.x }}, Y: {{ cardPosition.leftTop.y
+    }}<br />
+    rightTop X: {{ cardPosition.rightTop.x }}, Y: {{ cardPosition.rightTop.y
+    }}<br />
+    rightBottom X: {{ cardPosition.rightBottom.x }}, Y:
+    {{ cardPosition.rightBottom.y }}<br />
+    leftBottom X: {{ cardPosition.leftBottom.x }}, Y:
+    {{ cardPosition.leftBottom.y }}<br />
+  </div>
   <div class="scoreboard-container flex">
     <div>{{ currentStep }} of {{ data.length }}</div>
     <div>
@@ -319,29 +394,50 @@ const count = ref(0);
     </div>
     <div>8 points</div>
   </div>
-  <div class="current-card flex justify-center mt-10 relative h-32">
+  <div
+    ref="cardContainer"
+    class="current-card flex justify-center mt-10 w-80 h-32 absolute left-1/2 transform -translate-x-1/2 z-10"
+  >
     <div
       ref="card"
-      class="card w-80 h-32 border rounded-md p-4 flex cursor-grab"
+      class="card w-80 h-32 border rounded-md p-4 flex cursor-grab relative"
       :style="currentDraggingStyle"
     >
       <div class="left w-32 border h-full"></div>
       <div class="w-60 px-4">Draggable</div>
+      <div class="absolute right-0 bottom-10">
+        座標：{{ cardX }}/{{ cardY }}
+      </div>
+      <div class="absolute right-0 bottom-2">
+        卡片長寬：{{ cardWidth }}/{{ cardHeight }}
+      </div>
     </div>
   </div>
-  <div class="timeline flex flex-col items-center my-20 relative">
-    <div class="absolute top-[-30px]">Before</div>
-
-    <ul class="min-h-[200px] flex flex-col justify-center">
-      <li
-        class="card mt-2 w-72 h-28 border rounded-md p-4 flex"
-        v-for="step in 1"
-      ></li>
-      <li
-        class="timeline absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-full rounded-md bg-white"
-      ></li>
-    </ul>
-    <div class="absolute bottom-[-30px]">After</div>
+  <div
+    ref="timelineContainer"
+    class="timeline flex flex-col items-center my-20 relative border border-red-300 py-10 transition-all"
+    :class="isMoveInTimeline ? 'mt-0 h-[800px]' : 'mt-[200px] h-[600px]'"
+  >
+    <div class="absolute top-2">Before</div>
+    <div ref="timeline" class="timeline absolute bottom-0 h-[600px] w-full">
+      <ul
+        class="flex flex-col justify-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      >
+        <li
+          class="outline card mt-2 w-72 h-28 border rounded-md"
+          :class="isMoveInTimeline ? 'opacity-1 bg-yellow-400' : 'opacity-0'"
+        ></li>
+        <li
+          class="card mt-2 w-72 h-28 border rounded-md p-4 flex"
+          v-for="step in 1"
+        ></li>
+      </ul>
+    </div>
+    <div
+      :class="isMoveInTimeline ? 'h-[720px]' : 'h-[520px]'"
+      class="timeline absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 rounded-md bg-white transition-all"
+    ></div>
+    <div class="absolute bottom-2">After</div>
   </div>
 </template>
 
