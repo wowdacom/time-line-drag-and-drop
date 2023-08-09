@@ -421,11 +421,13 @@ const count = ref(0);
     <div class="absolute top-2">Before</div>
     <div ref="timeline" class="timeline absolute bottom-0 h-[600px] w-full">
       <ul
-        class="flex flex-col justify-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        class="flex flex-col justify-center absolute top-[250px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
       >
         <li
           class="outline card mt-2 w-72 h-28 border rounded-md"
-          :class="isMoveInTimeline ? 'opacity-1 bg-yellow-400' : 'opacity-0'"
+          :class="
+            isMoveInTimeline ? 'opacity-50 bg-yellow-300 relative' : 'opacity-0'
+          "
         ></li>
         <li
           class="card mt-2 w-72 h-28 border rounded-md p-4 flex"
@@ -435,7 +437,7 @@ const count = ref(0);
     </div>
     <div
       :class="isMoveInTimeline ? 'h-[720px]' : 'h-[520px]'"
-      class="timeline absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 rounded-md bg-white transition-all"
+      class="timeline absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 rounded-md bg-white transition-all z-0"
     ></div>
     <div class="absolute bottom-2">After</div>
   </div>
