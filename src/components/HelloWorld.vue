@@ -248,6 +248,7 @@ const data = ref([
 ]);
 const cardContainer = ref(null);
 const card = ref(null);
+const timelineCards = ref([]);
 const cardX = ref(0);
 const cardY = ref(0);
 const cardWidth = ref(0);
@@ -261,6 +262,7 @@ const cardPosition = reactive({
 const draggingStyle = ref({});
 const mousePos = reactive({ x: undefined, y: undefined });
 const isMoveInTimeline = ref(false);
+const isOverOutline = ref(false);
 
 const timelineContainer = ref(null);
 const timeline = ref(null);
@@ -338,13 +340,31 @@ const currentDraggingStyle = computed({
 
 const handleTimelineObserver = (entries) => {
   const rect = timeline.value.getBoundingClientRect();
+  const firstCard = timelineCards.value[0].getBoundingClientRect();
   const rectTop = rect.top + window.scrollY;
+  const firstCardTop = firstCard.top + window.scrollY;
   if (cardPosition.rightBottom.y > rectTop) {
     isMoveInTimeline.value = true;
   } else {
     isMoveInTimeline.value = false;
   }
+
+  if (cardPosition.rightBottom.y > firstCardTop) {
+    isOverOutline.value = true;
+  } else {
+    isOverOutline.value = false;
+  }
 };
+
+const outlineStatus = computed(() => {
+  let timelineControl = isMoveInTimeline.value
+    ? "opacity-50 bg-yellow-300 relative"
+    : "opacity-0";
+  let overOutlineControl = isOverOutline.value
+    ? "transform translate-y-full"
+    : "";
+  return timelineControl + " " + overOutlineControl;
+});
 
 onMounted(() => {
   card.value.addEventListener("mousedown", dragstart_handler);
@@ -424,14 +444,16 @@ const count = ref(0);
         class="flex flex-col justify-center absolute top-[250px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
       >
         <li
-          class="outline card mt-2 w-72 h-28 border rounded-md"
-          :class="
-            isMoveInTimeline ? 'opacity-50 bg-yellow-300 relative' : 'opacity-0'
-          "
-        ></li>
+          class="outline card mt-2 w-72 h-28 border rounded-md flex justify-center items-center transition-all"
+          :class="outlineStatus"
+        >
+          Input Here?!
+        </li>
         <li
-          class="card mt-2 w-72 h-28 border rounded-md p-4 flex"
+          ref="timelineCards"
+          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all"
           v-for="step in 1"
+          :class="isOverOutline ? 'transform -translate-y-full' : ''"
         ></li>
       </ul>
     </div>
