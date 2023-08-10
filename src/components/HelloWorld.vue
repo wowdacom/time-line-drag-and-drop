@@ -263,11 +263,27 @@ const draggingStyle = ref({});
 const mousePos = reactive({ x: undefined, y: undefined });
 const isMoveInTimeline = ref(false);
 const isOverOutline = ref(false);
+const overOutlineCount = ref(0);
 
 const timelineContainer = ref(null);
 const timeline = ref(null);
 
 const currentStep = ref(0);
+
+const cardLists = ref([
+  {
+    title: "Prayers for Bobby",
+    year: "2009-01-24",
+  },
+  {
+    title: "The Matrix",
+    year: "1999-03-31",
+  },
+  {
+    title: "Avatar",
+    year: "2009-12-18",
+  },
+]);
 
 const dragstart_handler = (event) => {
   currentDraggingStyle.value = {
@@ -325,6 +341,8 @@ const dragstart_handler = (event) => {
       transition: "all 2s ease-in-out",
     };
     isMoveInTimeline.value = false;
+    isOverOutline.value = false;
+    overOutlineCount.vlaue = 0;
     card.value.removeEventListener("mouseup", () => {});
   });
 };
@@ -340,31 +358,54 @@ const currentDraggingStyle = computed({
 
 const handleTimelineObserver = (entries) => {
   const rect = timeline.value.getBoundingClientRect();
-  const firstCard = timelineCards.value[0].getBoundingClientRect();
   const rectTop = rect.top + window.scrollY;
+
+  const cardCenterlines = timelineCards.value.map((timelineCard) => {
+    let cardInfo = timelineCard.getBoundingClientRect();
+    return Math.ceil(cardInfo.top + window.scrollY + cardInfo.height / 2);
+  });
+
+  const firstCard = timelineCards.value[0].getBoundingClientRect();
   const firstCardTop = firstCard.top + window.scrollY;
+  const firstCardHeight = firstCard.height;
+
   if (cardPosition.rightBottom.y > rectTop) {
     isMoveInTimeline.value = true;
   } else {
     isMoveInTimeline.value = false;
   }
-
-  if (cardPosition.rightBottom.y > firstCardTop) {
-    isOverOutline.value = true;
-  } else {
-    isOverOutline.value = false;
-  }
+  overOutlineCount.value = cardCenterlines.reduce(
+    (totalCount, cardCenterline) => {
+      if (cardPosition.rightBottom.y > cardCenterline) {
+        return (totalCount = totalCount + 1);
+      } else {
+        return totalCount;
+      }
+    },
+    0
+  );
+  isOverOutline.value = overOutlineCount.value > 0;
 };
 
-const outlineStatus = computed(() => {
-  let timelineControl = isMoveInTimeline.value
-    ? "opacity-50 bg-yellow-300 relative"
-    : "opacity-0";
-  let overOutlineControl = isOverOutline.value
-    ? "transform translate-y-full"
+const outlineStyles = computed(() => {
+  const oneCard = timelineCards.value.length
+    ? timelineCards.value[0].getBoundingClientRect()
+    : null;
+  const oneCardHeight = oneCard?.height ? oneCard.height : 0;
+  return isOverOutline.value
+    ? `transform: translate(0, ${
+        (oneCardHeight + 8) * overOutlineCount.value
+      }px);`
     : "";
-  return timelineControl + " " + overOutlineControl;
 });
+
+const timelineStyles = (index) => {
+  const outlineCard = card.value ? card.value.getBoundingClientRect() : null;
+  const outlineCardHeight = outlineCard?.height ? outlineCard.height : 0;
+  return index < overOutlineCount.value
+    ? `transform: translate(0, -${outlineCardHeight + 8}px);`
+    : "";
+};
 
 onMounted(() => {
   card.value.addEventListener("mousedown", dragstart_handler);
@@ -444,17 +485,22 @@ const count = ref(0);
         class="flex flex-col justify-center absolute top-[250px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
       >
         <li
-          class="outline card mt-2 w-72 h-28 border rounded-md flex justify-center items-center transition-all"
-          :class="outlineStatus"
+          class="outline card mt-2 w-80 h-32 border rounded-md flex justify-center items-center transition-all"
+          :class="
+            isMoveInTimeline ? 'opacity-50 bg-yellow-300 relative' : 'opacity-0'
+          "
+          :style="outlineStyles"
         >
           Input Here?!
         </li>
         <li
+          :style="timelineStyles(index)"
           ref="timelineCards"
-          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all"
-          v-for="step in 1"
-          :class="isOverOutline ? 'transform -translate-y-full' : ''"
-        ></li>
+          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all mx-auto items-center justify-center"
+          v-for="(cardList, index) in cardLists"
+        >
+          {{ cardList.title }}
+        </li>
       </ul>
     </div>
     <div
