@@ -1,251 +1,44 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 
-const data = ref([
+const movies = ref([
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "9",
-    order: 4,
-    image: "joplin",
-    "image link": "Overlooked image?",
-    credit: "Hulton Archive/Getty Images (Scott Joplin)",
-    year: "1899",
-    clue: "Scott Joplin publishes the song “Maple Leaf Rag,” which becomes a national sensation.",
-    context:
-      'Renowned as the “King of Ragtime,” Joplin was desperate to <a href="https://www.nytimes.com/2023/07/27/arts/music/treemonisha-scott-joplin-productions.html" target="_blank">prove himself</a> by writing “Treemonisha,” a long-forgotten opera that has recently been performed in three countries.',
-    url: "",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 5,
-    id: "clue-04",
-    percent_correct_text: "57%",
+    title: "The Matrix",
+    year: "1999-03-31",
+    img: "https://people.com/thmb/kqiBr5FPcG_UnsgN6b08fvXY7H4=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(749x0:751x2):format(webp)/keanu-reeves-b000b57ec9774787bdfe01d50658c867.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "8",
-    order: 5,
-    image: "ivy",
-    "image link": "this image in story",
-    credit: "Christopher Capozziello for The New York Times (Ivy League)",
-    year: "1920s",
-    clue: "Ivy League colleges begin legacy admissions, in part to protect Protestants from Catholic and Jewish applicants.",
-    context:
-      'Alumni of many colleges are <a href="https://www.nytimes.com/2023/07/30/us/politics/legacy-admissions-college-alumni.html" target="_blank">now wrestling</a> with the practice of legacy admissions.',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 5,
-    id: "clue-05",
-    percent_correct_text: "69%",
+    title: "Avatar",
+    year: "2009-12-18",
+    img: "https://media.wired.com/photos/639b95f7b0b422ebbe76e40b/4:3/w_2131,h_1598,c_limit/Cul-avatar.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "7",
-    order: 7,
-    image: "credit",
-    "image link": "Timesmachine image?",
-    credit: "",
-    year: "1974",
-    clue: "The Equal Credit Opportunity Act passes, helping women get mortgages and credit cards in their own name.",
-    context:
-      'Recent shows, podcasts and films <a href="https://www.nytimes.com/2023/07/25/arts/television/dirty-pictures-from-a-revolution.html" target="_blank">have delved</a> into the 1970s, a time of confusions and correspondences between women’s liberation and the sexual revolution.',
-    url: "Story",
-    excerpt: "Nyt story",
-    undefined: "",
-    potientalValue: 4,
-    id: "clue-07",
-    percent_correct_text: "66%",
+    title: "Eternal Sunshine of the Spotless Mind",
+    year: "2004-04-16",
+    img: "https://media.timeout.com/images/101620085/750/422/image.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "6",
-    order: 6,
-    image: "daisy",
-    "image link": "screenshot of ad?",
-    credit: "",
-    year: "1964",
-    clue: "The “Daisy” campaign ad airs, invoking the risk of nuclear war to ominous effect.",
-    context:
-      'After the development of the atomic bomb, nuclear imagery quickly became a source of <a href="https://www.nytimes.com/2023/07/31/movies/oppenheimer-asteroid-city-mushroom-cloud.html" target="_blank">horror, anxiety and satire</a> in American culture.',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 4,
-    id: "clue-06",
-    percent_correct_text: "91%",
+    title: "Interstellar",
+    year: "2014-11-07",
+    img: "https://media.vogue.com.tw/photos/62e8a2a3703ce598b61f9e5e/16:9/w_1280,c_limit/interstellar-01.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "5",
-    order: 3,
-    image: "edison2",
-    "image link": "patent image?",
-    credit: "National Archives (light bulb)",
-    year: "1879",
-    clue: "Thomas Edison demonstrates a practical incandescent light bulb, which lasts longer than other versions.",
-    context:
-      'Before electricity, <a href="https://www.nytimes.com/2011/06/05/magazine/bulb-in-bulb-out.html">light was expensive</a>, a product of exhaustible sources like whale oil. As of last week, consumers will <a href="https://www.nytimes.com/2023/08/01/climate/incandescent-light-bulb-ban-leds.html" target="_blank">no longer</a> be able to purchase incandescent light bulbs.',
-    url: "Story",
-    excerpt: "Original story, Learning Network, Times Machine, NYT mag",
-    undefined: "",
-    potientalValue: 3,
-    id: "clue-03",
-    percent_correct_text: "93%",
-    being_dragged: false,
-    translate_y: 98,
-    placed: true,
-    beingPlaced: false,
-    currentOrder: 2,
-    correctOrder: 2,
-    correct: true,
-    diffrence: 0,
-    pointValue: 3,
-    guess: ["1787", "1985"],
-    aboveStack: false,
-    beingCorrected: false,
+    title: "The Terminator",
+    year: "1985-03-29",
+    img: "https://resizing.flixster.com/DisYrRdGVNVDPr1BrFlvVxLN81o=/300x300/v2/https://flxt.tmsimg.com/assets/p7764_k_h10_aa.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "4",
-    order: 8,
-    image: "peewee",
-    "image link": "this image in Loupe?",
-    credit: "Warner Bros. (“Pee-Wee's Big Adventure”)",
-    year: "1985",
-    clue: "“Pee-wee’s Big Adventure” debuts, a breakthrough for the actor Paul Reubens and director Tim Burton.",
-    context:
-      'Reubens <a href="https://www.nytimes.com/2023/07/31/arts/television/paul-reuben-pee-wee-herman-movies-tv-shows.html" target="_blank">reunited with</a> Burton in “The Nightmare Before Christmas” and appeared as the unsettling Prince Gerhardt in “30 Rock.” He died last week.',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 3,
-    id: "clue-08",
-    percent_correct_text: "82%",
-    being_dragged: false,
-    translate_y: 156,
-    placed: true,
-    beingPlaced: false,
-    currentOrder: 3,
-    correctOrder: 3,
-    correct: true,
-    diffrence: 0,
-    pointValue: 3,
-    guess: ["1787", "1999"],
-    aboveStack: false,
-    beingCorrected: false,
+    title: "I, Robot",
+    year: "2004-07-16",
+    img: "https://i.kym-cdn.com/entries/icons/mobile/000/025/172/irobot.jpg",
   },
   {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "3",
-    order: 1,
-    image: "nero2",
-    "image link": "Nero Bust Scoop Asset",
-    credit: "Tom Jamieson for The New York Times (Nero)",
-    year: "54-68 A.D.",
-    clue: "Nero reigns as emperor of Rome, with a (now disputed) reputation for tyranny, debauchery and indulgence.",
-    context:
-      'In Rome, archaeologists believe they’ve <a href="https://www.nytimes.com/2023/07/30/world/europe/rome-nero-theater.html" target="_blank">discovered a theater</a> built by Nero, himself a musician. ',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 2,
-    id: "clue-01",
-    percent_correct_text: "93%",
-    being_dragged: false,
-    translate_y: -18,
-    placed: true,
-    beingPlaced: false,
-    currentOrder: 0,
-    correctOrder: 0,
-    correct: true,
-    diffrence: 0,
-    pointValue: 2,
-    guess: [null, "1787"],
-    aboveStack: false,
-    beingCorrected: false,
-  },
-  {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "",
-    start_order: "2",
-    order: 9,
-    image: "soccer3",
-    "image link": "story image? or Loupe image?",
-    credit: "Anacleto Rapping/Los Angeles Times, via Associated Press (soccer)",
-    year: "1999",
-    clue: "The U.S. national women’s soccer team wins its second World Cup, spurring the rapid growth of the sport in America.",
-    context:
-      'Millions tuned in to watch the United States win in a <a href="https://www.nytimes.com/1999/07/11/sports/refusing-to-wilt-us-wins-soccer-title.html" target="_blank">penalty shootout</a> at the Rose Bowl. The 2023 Women’s World Cup is now in the knockout stages; the United States <a href="https://www.nytimes.com/live/2023/08/06/sports/womens-world-cup-uswnt-sweden-score" target="_blank">lost to Sweden</a> in a penalty shootout in the round of 16 on Sunday.',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    potientalValue: 2,
-    id: "clue-09",
-    percent_correct_text: "87%",
-    being_dragged: false,
-    translate_y: 214,
-    placed: true,
-    beingPlaced: false,
-    currentOrder: 4,
-    correctOrder: 4,
-    correct: false,
-    diffrence: 1,
-    pointValue: 0,
-    beingCorrected: false,
-    guess: [null, "1787"],
-    aboveStack: false,
-  },
-  {
-    puzzle: "2023-08-06",
-    date: "",
-    introtxt: "",
-    start: "TRUE",
-    start_order: "1",
-    order: 2,
-    image: "constitution2",
-    "image link": "image in story",
-    credit: "Ardon Bar-Hama (Constitution)",
-    year: "1787",
-    clue: "The U.S. Constitution is signed and first printed after four months of grueling debate in Philadelphia.",
-    context:
-      'Only 14 known copies of the first printing remain. One was sold in 2021 for a record $43.2 million by Dorothy Tapper Goldman, a <a href="https://www.nytimes.com/2023/07/31/nyregion/dorothy-tapper-goldman-dead.html" target="_blank">major collector</a> of American historical documents, who died in July.',
-    url: "Story",
-    excerpt: "",
-    undefined: "",
-    id: "clue-02",
-    placed: true,
-    currentOrder: 1,
-    percent_correct_text: "33%",
-    correctOrder: 1,
-    beingPlaced: false,
-    aboveStack: false,
-    translate_y: 40,
-    beingCorrected: false,
+    title: "Blade Runner",
+    year: "1983-10-22",
+    img: "https://d1nslcd7m2225b.cloudfront.net/Pictures/1024x536/8/0/8/1270808_bladerunner20497_903790.jpg",
   },
 ]);
+
 const cardContainer = ref(null);
 const card = ref(null);
 const timelineCards = ref([]);
@@ -267,23 +60,23 @@ const overOutlineCount = ref(0);
 
 const timelineContainer = ref(null);
 const timeline = ref(null);
+const timelineStyles = ref(["", "", "", "", "", "", "", ""]);
 
-const currentStep = ref(0);
+const gameStep = ref(0);
+const gameScore = ref(0);
 
+const currentCard = ref({});
 const cardLists = ref([
   {
-    title: "Prayers for Bobby",
-    year: "2009-01-24",
-  },
-  {
-    title: "The Matrix",
-    year: "1999-03-31",
-  },
-  {
-    title: "Avatar",
-    year: "2009-12-18",
+    title: "2001: A Space Odyssey",
+    year: "1968-04-02",
+    img: "https://classic.imgix.net/movies/thumbnails/2001-space-odyssey-backdrop-2.jpg?auto=compress,format&v=20221026",
   },
 ]);
+
+const gameInit = () => {
+  currentCard.value = movies.value[gameStep.value];
+};
 
 const dragstart_handler = (event) => {
   currentDraggingStyle.value = {
@@ -332,6 +125,10 @@ const dragstart_handler = (event) => {
   document.addEventListener("mousemove", dragmove_handler);
   card.value.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", dragmove_handler);
+    if (isMoveInTimeline.value) {
+      cardLists.value.splice(overOutlineCount.value, 0, currentCard.value);
+      updateStep();
+    }
     cardContainer.value.append(card.value);
     currentDraggingStyle.value = {
       position: "static",
@@ -342,9 +139,17 @@ const dragstart_handler = (event) => {
     };
     isMoveInTimeline.value = false;
     isOverOutline.value = false;
-    overOutlineCount.vlaue = 0;
+    overOutlineCount.value = 0;
+    updateTimelineStyles();
     card.value.removeEventListener("mouseup", () => {});
   });
+};
+
+const updateStep = () => {
+  if (gameStep.value < movies.value.length) {
+    gameStep.value = gameStep.value + 1;
+  }
+  currentCard.value = movies.value[gameStep.value];
 };
 
 const currentDraggingStyle = computed({
@@ -385,6 +190,7 @@ const handleTimelineObserver = (entries) => {
     0
   );
   isOverOutline.value = overOutlineCount.value > 0;
+  updateTimelineStyles();
 };
 
 const outlineStyles = computed(() => {
@@ -399,12 +205,22 @@ const outlineStyles = computed(() => {
     : "";
 });
 
-const timelineStyles = (index) => {
-  const outlineCard = card.value ? card.value.getBoundingClientRect() : null;
-  const outlineCardHeight = outlineCard?.height ? outlineCard.height : 0;
-  return index < overOutlineCount.value
-    ? `transform: translate(0, -${outlineCardHeight + 8}px);`
-    : "";
+const updateTimelineStyles = () => {
+  cardLists.value.forEach((cardList, index) => {
+    const outlineCard = card.value ? card.value.getBoundingClientRect() : null;
+    const outlineCardHeight = outlineCard?.height ? outlineCard.height : 0;
+    if (index < overOutlineCount.value) {
+      timelineStyles.value[index] = `transform: translate(0, -${
+        outlineCardHeight + 8
+      }px);`;
+    } else {
+      timelineStyles.value[index] = ``;
+    }
+  });
+};
+
+const getTimelineStyle = (index) => {
+  return timelineStyles.value[index];
 };
 
 onMounted(() => {
@@ -423,7 +239,7 @@ defineProps({
   msg: String,
 });
 
-const count = ref(0);
+gameInit();
 </script>
 
 <template>
@@ -442,18 +258,18 @@ const count = ref(0);
     {{ cardPosition.leftBottom.y }}<br />
   </div>
   <div class="scoreboard-container flex">
-    <div>{{ currentStep }} of {{ data.length }}</div>
+    <div>{{ gameStep }} of {{ movies.length }}</div>
     <div>
       <ul class="flex m-2">
         <li
           class="w-10 h-2 rounded-md border mr-2 flex items-center justify-center"
-          v-for="step in data.length"
+          v-for="step in movies.length"
         >
           {{ step }}
         </li>
       </ul>
     </div>
-    <div>8 points</div>
+    <div>{{ gameScore }} points</div>
   </div>
   <div
     ref="cardContainer"
@@ -464,8 +280,10 @@ const count = ref(0);
       class="card w-80 h-32 border rounded-md p-4 flex cursor-grab relative"
       :style="currentDraggingStyle"
     >
-      <div class="left w-32 border h-full"></div>
-      <div class="w-60 px-4">Draggable</div>
+      <div class="left w-32 border h-full">
+        <img :src="currentCard.img" class="h-full object-cover" alt="" />
+      </div>
+      <div class="w-60 px-4">{{ currentCard.title }}</div>
       <div class="absolute right-0 bottom-10">
         座標：{{ cardX }}/{{ cardY }}
       </div>
@@ -494,12 +312,22 @@ const count = ref(0);
           Input Here?!
         </li>
         <li
-          :style="timelineStyles(index)"
+          :style="getTimelineStyle(index)"
           ref="timelineCards"
-          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all mx-auto items-center justify-center"
+          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all mx-auto items-center relative"
           v-for="(cardList, index) in cardLists"
         >
-          {{ cardList.title }}
+          <div
+            class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-6 rounded-xl bg-blue-300 px-2 text-center text-white font-bold z-20"
+          >
+            {{ cardList.year.split("-")[0] }}
+          </div>
+          <div class="left w-20 border h-full shrink-0">
+            <img :src="cardList.img" class="h-full object-cover" alt="" />
+          </div>
+          <div class="px-2">
+            {{ cardList.title }}
+          </div>
         </li>
       </ul>
     </div>
