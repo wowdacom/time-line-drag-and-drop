@@ -6,36 +6,50 @@ const movies = ref([
     title: "The Matrix",
     year: "1999-03-31",
     img: "https://people.com/thmb/kqiBr5FPcG_UnsgN6b08fvXY7H4=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(749x0:751x2):format(webp)/keanu-reeves-b000b57ec9774787bdfe01d50658c867.jpg",
+    order: 4,
+    isCorrect: null,
   },
   {
     title: "Avatar",
     year: "2009-12-18",
     img: "https://media.wired.com/photos/639b95f7b0b422ebbe76e40b/4:3/w_2131,h_1598,c_limit/Cul-avatar.jpg",
+    order: 7,
+    isCorrect: null,
   },
   {
     title: "Eternal Sunshine of the Spotless Mind",
     year: "2004-04-16",
     img: "https://media.timeout.com/images/101620085/750/422/image.jpg",
+    order: 5,
+    isCorrect: null,
   },
   {
     title: "Interstellar",
     year: "2014-11-07",
     img: "https://media.vogue.com.tw/photos/62e8a2a3703ce598b61f9e5e/16:9/w_1280,c_limit/interstellar-01.jpg",
+    order: 8,
+    isCorrect: null,
   },
   {
     title: "The Terminator",
     year: "1985-03-29",
     img: "https://resizing.flixster.com/DisYrRdGVNVDPr1BrFlvVxLN81o=/300x300/v2/https://flxt.tmsimg.com/assets/p7764_k_h10_aa.jpg",
+    order: 3,
+    isCorrect: null,
   },
   {
     title: "I, Robot",
     year: "2004-07-16",
     img: "https://i.kym-cdn.com/entries/icons/mobile/000/025/172/irobot.jpg",
+    order: 6,
+    isCorrect: null,
   },
   {
     title: "Blade Runner",
     year: "1983-10-22",
     img: "https://d1nslcd7m2225b.cloudfront.net/Pictures/1024x536/8/0/8/1270808_bladerunner20497_903790.jpg",
+    order: 2,
+    isCorrect: null,
   },
 ]);
 
@@ -71,6 +85,8 @@ const cardLists = ref([
     title: "2001: A Space Odyssey",
     year: "1968-04-02",
     img: "https://classic.imgix.net/movies/thumbnails/2001-space-odyssey-backdrop-2.jpg?auto=compress,format&v=20221026",
+    order: 1,
+    isCorrect: null,
   },
 ]);
 
@@ -127,6 +143,12 @@ const dragstart_handler = (event) => {
     document.removeEventListener("mousemove", dragmove_handler);
     if (isMoveInTimeline.value) {
       cardLists.value.splice(overOutlineCount.value, 0, currentCard.value);
+      cardLists.value[overOutlineCount.value].isCorrect = judgeOrder(
+        overOutlineCount.value
+      );
+      cardLists.value.sort(function (a, b) {
+        return a.order - b.order;
+      });
       updateStep();
     }
     cardContainer.value.append(card.value);
@@ -221,6 +243,27 @@ const updateTimelineStyles = () => {
 
 const getTimelineStyle = (index) => {
   return timelineStyles.value[index];
+};
+
+const judgeOrder = (newInsertCardIndex) => {
+  let isCorrect = false;
+
+  if (newInsertCardIndex === 0) {
+    isCorrect =
+      cardLists.value[newInsertCardIndex].order <
+      cardLists.value[newInsertCardIndex + 1].order;
+  } else if (newInsertCardIndex === cardLists.value.length - 1) {
+    isCorrect =
+      cardLists.value[newInsertCardIndex].order >
+      cardLists.value[newInsertCardIndex - 1].order;
+  } else {
+    isCorrect =
+      cardLists.value[newInsertCardIndex].order <
+        cardLists.value[newInsertCardIndex + 1].order &&
+      cardLists.value[newInsertCardIndex].order >
+        cardLists.value[newInsertCardIndex - 1].order;
+  }
+  return isCorrect;
 };
 
 onMounted(() => {
@@ -318,7 +361,14 @@ gameInit();
           v-for="(cardList, index) in cardLists"
         >
           <div
-            class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-6 rounded-xl bg-blue-300 px-2 text-center text-white font-bold z-20"
+            class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-6 rounded-xl px-2 text-center text-white font-bold z-20"
+            :class="
+              cardList.isCorrect === null
+                ? 'bg-blue-300'
+                : cardList.isCorrect
+                ? 'bg-green-300'
+                : 'bg-red-300'
+            "
           >
             {{ cardList.year.split("-")[0] }}
           </div>
