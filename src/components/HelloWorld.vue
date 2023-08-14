@@ -90,6 +90,8 @@ const cardLists = ref([
   },
 ]);
 
+const groupAnimated = ref(false);
+
 const gameInit = () => {
   currentCard.value = movies.value[gameStep.value];
 };
@@ -141,14 +143,20 @@ const dragstart_handler = (event) => {
   document.addEventListener("mousemove", dragmove_handler);
   card.value.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", dragmove_handler);
+
+    groupAnimated.value = false;
     if (isMoveInTimeline.value) {
       cardLists.value.splice(overOutlineCount.value, 0, currentCard.value);
       cardLists.value[overOutlineCount.value].isCorrect = judgeOrder(
         overOutlineCount.value
       );
-      cardLists.value.sort(function (a, b) {
-        return a.order - b.order;
-      });
+
+      setTimeout(() => {
+        groupAnimated.value = true;
+        cardLists.value.sort(function (a, b) {
+          return a.order - b.order;
+        });
+      }, 1000);
       updateStep();
     }
     cardContainer.value.append(card.value);
@@ -342,8 +350,11 @@ gameInit();
   >
     <div class="absolute top-2">Before</div>
     <div ref="timeline" class="timeline absolute bottom-0 h-[600px] w-full">
-      <ul
+      <TransitionGroup
+        :css="groupAnimated"
         class="flex flex-col justify-center absolute top-[250px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
+        name="list"
+        tag="ul"
       >
         <li
           class="outline card mt-2 w-80 h-32 border rounded-md flex justify-center items-center transition-all"
@@ -357,7 +368,9 @@ gameInit();
         <li
           :style="getTimelineStyle(index)"
           ref="timelineCards"
-          class="card mt-2 w-72 h-28 border rounded-md p-4 flex transition-all mx-auto items-center relative"
+          :class="groupAnimated ? 'transition-all duration-1000' : ''"
+          class="card mt-2 w-72 h-28 border rounded-md p-4 flex mx-auto items-center relative"
+          :key="cardList.title"
           v-for="(cardList, index) in cardLists"
         >
           <div
@@ -379,7 +392,7 @@ gameInit();
             {{ cardList.title }}
           </div>
         </li>
-      </ul>
+      </TransitionGroup>
     </div>
     <div
       :class="isMoveInTimeline ? 'h-[720px]' : 'h-[520px]'"
